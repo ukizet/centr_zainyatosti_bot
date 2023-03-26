@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.dispatcher.filters import Text
 
 from create_bot import dp
-from keyboards import client_kb
+from keyboards import client_kb, admin_kb
 # from database import sqlite_db
 
 async def command_start(message: types.Message):
@@ -17,7 +17,7 @@ async def command_menu(message: types.Message):
     pass
 
 async def admin_panel(message: types.Message):
-    # await message.answer(reply_markup=admin_kb, text='admin panel')
+    await message.answer(reply_markup=admin_kb, text='admin panel')
     pass
 
 def reg_handlers_client(dp: Dispatcher):

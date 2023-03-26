@@ -12,7 +12,7 @@ class MyStatesGroup(StatesGroup):
     salary = State()
 
 
-async def buttons_handlers():
+def buttons_handlers():
     global button_start, button_cancel
 
     async def button_start(message : types.Message):
@@ -26,10 +26,11 @@ async def buttons_handlers():
             # print(f'current_state: IS NONE!!!')
             return
         await state.finish()
-        await message.reply('OK', reply_markup=client_kb)
+        await message.answer('OK', reply_markup=client_kb)
 
+buttons_handlers()
 
-async def states_handlers():
+def states_handlers():
     global load_template, load_name, load_desc, load_salary
 
     async def load_template(message: types.Message, state: FSMContext, load_type: str, text: str='', finish: bool=False, test: bool=False):
@@ -62,6 +63,7 @@ async def states_handlers():
     async def load_salary(message: types.Message, state: FSMContext):
         await load_template(message=message, state=state, load_type='salary', text='', finish=True)
 
+states_handlers()
 
 def reg_handlers_admin(dp: Dispatcher):
     def reg_buttons():
