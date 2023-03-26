@@ -6,6 +6,12 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 # from database import sqlite_db
 from keyboards import client_kb, cancel_button
 
+import random
+import string
+
+# Створити список всіх латинських букв
+letters = string.ascii_lowercase
+
 class MyStatesGroup(StatesGroup):
     name = State()
     desc = State()
@@ -28,31 +34,37 @@ def buttons_handlers():
         await state.finish()
         await message.answer('OK', reply_markup=client_kb)
 
-buttons_handlers()
 
 def states_handlers():
     global load_template, load_name, load_desc, load_salary
 
     async def load_template(message: types.Message, state: FSMContext, load_type: str, text: str='', finish: bool=False, test: bool=False):
-        async def state_proxy_with_test():
-            if test == True:
-                return
-            return await state.proxy()
+        def getmsg():
+            if test:
+                if load_type == 'salary':
+                    return random.randint(10000, 99999)
+                return ''.join(random.choice(letters) for i in range(5))
+            return message.text
+
         
-        if load_type == 'photo':
-            async with state_proxy_with_test() as data:
-                data['photo'] = message.photo[0].file_id
-        else:
-            async with state_proxy_with_test() as data:
-                data[f'{load_type}'] = message.text
+        # if load_type == 'photo':
+        #     async with state.proxy() as data:
+        #         data['photo'] = message.photo[0].file_id
+        # else:
+        async with state.proxy() as data:
+            data[f'{load_type}'] = getmsg()
         if finish == True:
-            async with state_proxy_with_test() as data:
+            async with state.proxy() as data:
                 await message.answer(str(data), reply_markup=client_kb)
 
             # await sqlite_db.sql_add(state=state)
             await state.finish()
         else:
             await MyStatesGroup.next()
+            if len(text) > 0:
+                await message.answer(f'{text}')
+            else:
+                pass
 
     async def load_name(message: types.Message, state: FSMContext):
         await load_template(message=message, state=state, load_type='name', text='Пишіть опис вакансії')
@@ -63,6 +75,7 @@ def states_handlers():
     async def load_salary(message: types.Message, state: FSMContext):
         await load_template(message=message, state=state, load_type='salary', text='', finish=True)
 
+buttons_handlers()
 states_handlers()
 
 def reg_handlers_admin(dp: Dispatcher):
