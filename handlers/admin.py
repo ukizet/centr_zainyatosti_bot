@@ -21,6 +21,10 @@ class DeleteVacancy(StatesGroup):
     name = State()
     id = State()
 
+class ChangeVacancy(StatesGroup):
+    id = State()
+    name = State()
+
 def buttons_handlers():
     global button_add, button_cancel, button_delete, button_change, button_show
 
@@ -30,7 +34,8 @@ def buttons_handlers():
 
     async def button_change(message : types.Message):
         await message.answer('Ще в розробці', reply_markup=client_kb)
-        pass
+        await ChangeVacancy.id.set()
+        await message.answer('Введіть id вакансії яку треба змінити', reply_markup=cancel_button)
 
     async def button_delete(message : types.Message):
         # await message.answer('Ще в розробці', reply_markup=client_kb)
@@ -49,7 +54,6 @@ def buttons_handlers():
             return
         await state.finish()
         await message.answer('Операція була скасована', reply_markup=client_kb)
-
 
 
 def addVacancy_states_handlers():
@@ -98,6 +102,22 @@ async def del_vacancy(message: types.Message, state: FSMContext):
     await message.answer('Вакансія була видалена', reply_markup=client_kb)
     pass
 
+async def changeVacancy_get_id(message: types.Message, state: FSMContext):
+    # await db.sql_change(message=message)
+    # await state.finish()
+    # await message.answer('Вакансія була змінена', reply_markup=client_kb)
+    async with state.proxy() as data:
+            data['id'] = int(message.text)
+    await ChangeVacancy.name.set()
+    await message.answer('Введіть нову назву вакансії', reply_markup=cancel_button)
+
+async def changeVacancy_get_name(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+            data['name'] = message.text
+    await db.sql_change(message=message, state=state)
+    await state.finish()
+    await message.answer('Вакансія була змінена', reply_markup=client_kb)
+
 buttons_handlers()
 addVacancy_states_handlers()
 
@@ -116,6 +136,9 @@ def reg_handlers_admin(dp: Dispatcher):
         dp.register_message_handler(load_salary, state=AddVacancy.salary)
 
     dp.register_message_handler(del_vacancy, state=DeleteVacancy.id)
+
+    dp.register_message_handler(changeVacancy_get_id, state=ChangeVacancy.id)
+    dp.register_message_handler(changeVacancy_get_name, state=ChangeVacancy.name)
 
     reg_buttons()
     reg_addVacancy_handlers()

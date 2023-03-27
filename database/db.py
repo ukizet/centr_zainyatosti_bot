@@ -34,4 +34,9 @@ async def sql_read_admin(message: types.Message):
 async def sql_delete(message: types.Message):
     cur.execute('DELETE FROM vacancies WHERE ID = ?', (message.text,))
     conn.commit()
+
+async def sql_change(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        cur.execute(f"UPDATE vacancies SET name = '{data['name']}' WHERE id = {data['id']}")
+        conn.commit()
         
