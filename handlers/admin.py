@@ -103,11 +103,8 @@ async def del_vacancy(message: types.Message, state: FSMContext):
     pass
 
 async def changeVacancy_get_id(message: types.Message, state: FSMContext):
-    # await db.sql_change(message=message)
-    # await state.finish()
-    # await message.answer('Вакансія була змінена', reply_markup=client_kb)
     async with state.proxy() as data:
-            data['id'] = int(message.text)
+        data['id'] = int(message.text)
     await ChangeVacancy.name.set()
     await message.answer('Введіть нову назву вакансії', reply_markup=cancel_button)
 
@@ -122,13 +119,13 @@ buttons_handlers()
 addVacancy_states_handlers()
 
 def reg_handlers_admin(dp: Dispatcher):
+    dp.register_message_handler(button_cancel, Text(equals='Відміна'), state="*")
+
     def reg_buttons():
         dp.register_message_handler(button_add, Text(equals='Додати вакансію'), state=None)
         dp.register_message_handler(button_change, Text(equals='Змінити вакансію'))
         dp.register_message_handler(button_delete, Text(equals='Видалити вакансію'))
         dp.register_message_handler(button_show, Text(equals='Показати вакансії'))
-
-        dp.register_message_handler(button_cancel, Text(equals='Відміна'), state="*")
 
     def reg_addVacancy_handlers():
         dp.register_message_handler(load_name, state=AddVacancy.name)
@@ -142,4 +139,5 @@ def reg_handlers_admin(dp: Dispatcher):
 
     reg_buttons()
     reg_addVacancy_handlers()
+
 
