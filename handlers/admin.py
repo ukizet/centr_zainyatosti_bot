@@ -12,41 +12,45 @@ import string
 # Створити список всіх латинських букв
 letters = string.ascii_lowercase
 
+
 class AddVacancy(StatesGroup):
     name = State()
     desc = State()
     salary = State()
 
+
 class DeleteVacancy(StatesGroup):
     name = State()
     id = State()
+
 
 class ChangeVacancy(StatesGroup):
     id = State()
     name = State()
 
+
 def buttons_handlers():
     global button_add, button_cancel, button_delete, button_change, button_show
 
-    async def button_add(message : types.Message):
+    async def button_add(message: types.Message):
         await AddVacancy.name.set()
         await message.answer('Пишіть назву вакансії', reply_markup=cancel_button)
 
-    async def button_change(message : types.Message):
+    async def button_change(message: types.Message):
         await message.answer('Ще в розробці', reply_markup=client_kb)
         await ChangeVacancy.id.set()
         await message.answer('Введіть id вакансії яку треба змінити', reply_markup=cancel_button)
 
-    async def button_delete(message : types.Message):
+    async def button_delete(message: types.Message):
         # await message.answer('Ще в розробці', reply_markup=client_kb)
         await DeleteVacancy.id.set()
         await message.answer('Введіть id вакансії яку треба видалити', reply_markup=cancel_button)
         pass
 
-    async def button_show(message : types.Message):
+    async def button_show(message: types.Message):
         await db.sql_read_admin(message=message)
 
-    async def button_cancel(message : types.Message, state : FSMContext):
+    async def button_cancel(message: types.Message, state: FSMContext):
         current_state = await state.get_state()
         print(f'current_state: {current_state}')
         if current_state is None:
@@ -59,7 +63,7 @@ def buttons_handlers():
 def addVacancy_states_handlers():
     global load_template, load_name, load_desc, load_salary
 
-    async def load_template(message: types.Message, state: FSMContext, load_type: str, text: str='', finish: bool=False, test: bool=False):
+    async def load_template(message: types.Message, state: FSMContext, load_type: str, text: str = '', finish: bool = False, test: bool = False):
         def getmsg():
             if test:
                 if load_type == 'salary':
@@ -67,7 +71,6 @@ def addVacancy_states_handlers():
                 return ''.join(random.choice(letters) for i in range(5))
             return message.text
 
-        
         # if load_type == 'photo':
         #     async with state.proxy() as data:
         #         data['photo'] = message.photo[0].file_id
@@ -96,11 +99,13 @@ def addVacancy_states_handlers():
     async def load_salary(message: types.Message, state: FSMContext):
         await load_template(message=message, state=state, load_type='salary', text='', finish=True)
 
+
 async def del_vacancy(message: types.Message, state: FSMContext):
     await db.sql_delete(message=message)
     await state.finish()
     await message.answer('Вакансія була видалена', reply_markup=client_kb)
     pass
+
 
 async def changeVacancy_get_id(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -108,9 +113,10 @@ async def changeVacancy_get_id(message: types.Message, state: FSMContext):
     await ChangeVacancy.name.set()
     await message.answer('Введіть нову назву вакансії', reply_markup=cancel_button)
 
+
 async def changeVacancy_get_name(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-            data['name'] = message.text
+        data['name'] = message.text
     await db.sql_change(message=message, state=state)
     await state.finish()
     await message.answer('Вакансія була змінена', reply_markup=client_kb)
@@ -118,14 +124,20 @@ async def changeVacancy_get_name(message: types.Message, state: FSMContext):
 buttons_handlers()
 addVacancy_states_handlers()
 
+
 def reg_handlers_admin(dp: Dispatcher):
-    dp.register_message_handler(button_cancel, Text(equals='Відміна'), state="*")
+    dp.register_message_handler(
+        button_cancel, Text(equals='Відміна'), state="*")
 
     def reg_buttons():
-        dp.register_message_handler(button_add, Text(equals='Додати вакансію'), state=None)
-        dp.register_message_handler(button_change, Text(equals='Змінити вакансію'))
-        dp.register_message_handler(button_delete, Text(equals='Видалити вакансію'))
-        dp.register_message_handler(button_show, Text(equals='Показати вакансії'))
+        dp.register_message_handler(button_add, Text(
+            equals='Додати вакансію'), state=None)
+        dp.register_message_handler(
+            button_change, Text(equals='Змінити вакансію'))
+        dp.register_message_handler(
+            button_delete, Text(equals='Видалити вакансію'))
+        dp.register_message_handler(
+            button_show, Text(equals='Показати вакансії'))
 
     def reg_addVacancy_handlers():
         dp.register_message_handler(load_name, state=AddVacancy.name)
@@ -135,9 +147,8 @@ def reg_handlers_admin(dp: Dispatcher):
     dp.register_message_handler(del_vacancy, state=DeleteVacancy.id)
 
     dp.register_message_handler(changeVacancy_get_id, state=ChangeVacancy.id)
-    dp.register_message_handler(changeVacancy_get_name, state=ChangeVacancy.name)
+    dp.register_message_handler(
+        changeVacancy_get_name, state=ChangeVacancy.name)
 
     reg_buttons()
     reg_addVacancy_handlers()
-
-
