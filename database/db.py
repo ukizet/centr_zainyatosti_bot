@@ -8,6 +8,8 @@ class Database:
     def __init__(self, db_name: str):
         self.conn = sq.connect(f'database/{db_name}')
         self.cursor = self.conn.cursor()
+        if self.conn:
+            print('Database connected(class Database)')
 
     def create_table(self, table_name: str, columns: str):
         """
@@ -74,11 +76,11 @@ class Database:
         self.conn.close()
 
 
-db_obj = Database('example.db')
+# db_obj = Database('example.db')
 
 
 def sql_start():
-    global conn, cur
+    global conn, cur, db_obj
     conn = sq.connect('database/vacancies.db')
     cur = conn.cursor()
     if conn:
@@ -91,6 +93,13 @@ def sql_start():
                     salary REAL
                     )''')
     conn.commit()
+    db_obj = Database('example.db')
+    db_obj.create_table('vacancies',
+                        '''ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+                        status TEXT DEFAULT "active", 
+                        name TEXT, 
+                        desc TEXT, 
+                        salary REAL''')
 
 
 async def sql_add(state: FSMContext):

@@ -71,10 +71,6 @@ def addVacancy_states_handlers():
                 return ''.join(random.choice(letters) for i in range(5))
             return message.text
 
-        # if load_type == 'photo':
-        #     async with state.proxy() as data:
-        #         data['photo'] = message.photo[0].file_id
-        # else:
         async with state.proxy() as data:
             data[f'{load_type}'] = getmsg()
         if finish == True:
@@ -82,6 +78,9 @@ def addVacancy_states_handlers():
                 await message.answer(str(data), reply_markup=client_kb)
 
             await db.sql_add(state=state)
+            async with state.proxy() as data:
+                db.db_obj.insert_data('vacancies', 
+                                   'name, desc, salary', f"'{data['name']}', '{data['desc']}', '{data['salary']}'")
             await state.finish()
         else:
             await AddVacancy.next()
