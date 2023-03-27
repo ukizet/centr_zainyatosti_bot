@@ -8,7 +8,13 @@ def sql_start():
     conn = sq.connect('database/vacancies.db')
     cur = conn.cursor()
     if conn: print('Database connected')
-    conn.execute('CREATE TABLE IF NOT EXISTS vacancies(ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT, desc TEXT, salary REAL)')
+    conn.execute('''CREATE TABLE IF NOT EXISTS vacancies(
+                    ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
+                    status TEXT DEFAULT "active", 
+                    name TEXT, 
+                    desc TEXT, 
+                    salary REAL
+                    )''')
     conn.commit()
 
 async def sql_add(state: FSMContext):
