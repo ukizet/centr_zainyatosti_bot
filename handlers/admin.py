@@ -22,7 +22,7 @@ class DeleteVacancy(StatesGroup):
     id = State()
 
 def buttons_handlers():
-    global button_add, button_cancel, button_delete, button_change
+    global button_add, button_cancel, button_delete, button_change, button_show
 
     async def button_add(message : types.Message):
         await AddVacancy.name.set()
@@ -33,8 +33,13 @@ def buttons_handlers():
         pass
 
     async def button_delete(message : types.Message):
-        await message.answer('Ще в розробці', reply_markup=client_kb)
+        # await message.answer('Ще в розробці', reply_markup=client_kb)
+        await DeleteVacancy.id.set()
+        await message.answer('Введіть id вакансії яку треба видалити', reply_markup=cancel_button)
         pass
+
+    async def button_show(message : types.Message):
+        await db.sql_read_admin(message=message)
 
     async def button_cancel(message : types.Message, state : FSMContext):
         current_state = await state.get_state()
@@ -43,11 +48,11 @@ def buttons_handlers():
             # print(f'current_state: IS NONE!!!')
             return
         await state.finish()
-        await message.answer('OK', reply_markup=client_kb)
+        await message.answer('Операція була скасована', reply_markup=client_kb)
 
 
 
-def add_states_handlers():
+def addVacancy_states_handlers():
     global load_template, load_name, load_desc, load_salary
 
     async def load_template(message: types.Message, state: FSMContext, load_type: str, text: str='', finish: bool=False, test: bool=False):
@@ -87,22 +92,31 @@ def add_states_handlers():
     async def load_salary(message: types.Message, state: FSMContext):
         await load_template(message=message, state=state, load_type='salary', text='', finish=True)
 
+async def del_vacancy(message: types.Message, state: FSMContext):
+    await db.sql_delete(message=message)
+    await state.finish()
+    await message.answer('Вакансія була видалена', reply_markup=client_kb)
+    pass
+
 buttons_handlers()
-add_states_handlers()
+addVacancy_states_handlers()
 
 def reg_handlers_admin(dp: Dispatcher):
     def reg_buttons():
         dp.register_message_handler(button_add, Text(equals='Додати вакансію'), state=None)
         dp.register_message_handler(button_change, Text(equals='Змінити вакансію'))
         dp.register_message_handler(button_delete, Text(equals='Видалити вакансію'))
+        dp.register_message_handler(button_show, Text(equals='Показати вакансії'))
 
         dp.register_message_handler(button_cancel, Text(equals='Відміна'), state="*")
 
-    def reg_states_handlers():
+    def reg_addVacancy_handlers():
         dp.register_message_handler(load_name, state=AddVacancy.name)
         dp.register_message_handler(load_desc, state=AddVacancy.desc)
         dp.register_message_handler(load_salary, state=AddVacancy.salary)
 
+    dp.register_message_handler(del_vacancy, state=DeleteVacancy.id)
+
     reg_buttons()
-    reg_states_handlers()
+    reg_addVacancy_handlers()
 

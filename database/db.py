@@ -25,5 +25,13 @@ async def sql_add(state: FSMContext):
 async def sql_read(message: types.Message):
     for ret in cur.execute('SELECT * FROM vacancies').fetchall():
         # await bot.send_photo(message.from_user.id, ret[0], f'Назва: {ret[1]}\nОпис: {ret[2]}\nЦіна: {ret[3]}')
-        await message.answer(f'Назва вакансії: {ret[1]}\nОпис: {ret[2]}\nЗП: {ret[3]}')
+        await message.answer(f'Назва вакансії: {ret[2]}\nОпис: {ret[3]}\nЗП: {ret[4]}')
+
+async def sql_read_admin(message: types.Message):
+    for vacancy in cur.execute('SELECT * FROM vacancies').fetchall():
+        await message.answer(f'ID: {vacancy[0]}\nСтатус: {vacancy[1]}\nНазва вакансії: {vacancy[2]}\nОпис: {vacancy[3]}\nЗП: {vacancy[4]}')
+
+async def sql_delete(message: types.Message):
+    cur.execute('DELETE FROM vacancies WHERE ID = ?', (message.text,))
+    conn.commit()
         
