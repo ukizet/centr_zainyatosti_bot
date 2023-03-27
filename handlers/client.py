@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters import Text
 
 from create_bot import dp
 from keyboards import client_kb, admin_kb
-# from database import sqlite_db
+from database import db
 
 def buttons_handlers():
     global command_when_we_work, command_menu, admin_panel
@@ -17,8 +17,8 @@ def buttons_handlers():
         await message.answer('з 08:00 до 17:00')
 
     async def command_menu(message: types.Message):
-        # await sqlite_db.sql_read(message=message)
-        await message.answer('Ще в розробці', reply_markup=client_kb)
+        await db.sql_read(message=message)
+        # await message.answer('Ще в розробці', reply_markup=client_kb)
         pass
 
 

@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-# from database import sqlite_db
+from database import db
 from keyboards import client_kb, cancel_button
 
 import random
@@ -69,7 +69,7 @@ def add_states_handlers():
             async with state.proxy() as data:
                 await message.answer(str(data), reply_markup=client_kb)
 
-            # await sqlite_db.sql_add(state=state)
+            await db.sql_add(state=state)
             await state.finish()
         else:
             await AddVacancy.next()
