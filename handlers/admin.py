@@ -12,18 +12,29 @@ import string
 # Створити список всіх латинських букв
 letters = string.ascii_lowercase
 
-class MyStatesGroup(StatesGroup):
+class AddVacancy(StatesGroup):
     name = State()
     desc = State()
     salary = State()
 
+class DeleteVacancy(StatesGroup):
+    name = State()
+    id = State()
 
 def buttons_handlers():
-    global button_start, button_cancel
+    global button_add, button_cancel, button_delete, button_change
 
-    async def button_start(message : types.Message):
-        await MyStatesGroup.name.set()
+    async def button_add(message : types.Message):
+        await AddVacancy.name.set()
         await message.answer('Пишіть назву вакансії', reply_markup=cancel_button)
+
+    async def button_change(message : types.Message):
+        await message.answer('Ще в розробці', reply_markup=client_kb)
+        pass
+
+    async def button_delete(message : types.Message):
+        await message.answer('Ще в розробці', reply_markup=client_kb)
+        pass
 
     async def button_cancel(message : types.Message, state : FSMContext):
         current_state = await state.get_state()
@@ -35,7 +46,8 @@ def buttons_handlers():
         await message.answer('OK', reply_markup=client_kb)
 
 
-def states_handlers():
+
+def add_states_handlers():
     global load_template, load_name, load_desc, load_salary
 
     async def load_template(message: types.Message, state: FSMContext, load_type: str, text: str='', finish: bool=False, test: bool=False):
@@ -60,7 +72,7 @@ def states_handlers():
             # await sqlite_db.sql_add(state=state)
             await state.finish()
         else:
-            await MyStatesGroup.next()
+            await AddVacancy.next()
             if len(text) > 0:
                 await message.answer(f'{text}')
             else:
@@ -76,17 +88,20 @@ def states_handlers():
         await load_template(message=message, state=state, load_type='salary', text='', finish=True)
 
 buttons_handlers()
-states_handlers()
+add_states_handlers()
 
 def reg_handlers_admin(dp: Dispatcher):
     def reg_buttons():
-        dp.register_message_handler(button_start, Text(equals='Додати вакансію'), state=None)
+        dp.register_message_handler(button_add, Text(equals='Додати вакансію'), state=None)
+        dp.register_message_handler(button_change, Text(equals='Змінити вакансію'))
+        dp.register_message_handler(button_delete, Text(equals='Видалити вакансію'))
+
         dp.register_message_handler(button_cancel, Text(equals='Відміна'), state="*")
 
     def reg_states_handlers():
-        dp.register_message_handler(load_name, state=MyStatesGroup.name)
-        dp.register_message_handler(load_desc, state=MyStatesGroup.desc)
-        dp.register_message_handler(load_salary, state=MyStatesGroup.salary)
+        dp.register_message_handler(load_name, state=AddVacancy.name)
+        dp.register_message_handler(load_desc, state=AddVacancy.desc)
+        dp.register_message_handler(load_salary, state=AddVacancy.salary)
 
     reg_buttons()
     reg_states_handlers()
