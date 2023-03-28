@@ -1,3 +1,3 @@
 # centr_zainyatosti_bot
 
-Це телеграм бот який дозволяє переглядати, додавати, видаляти та змінювати вакансії в базі даних
+This is a telegram bot that allows you to view, add, delete and modify jobs in the database
