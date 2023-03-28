@@ -18,8 +18,11 @@ class Database:
         """
 
         query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})"
-        self.cursor.execute(query)
-        self.conn.commit()
+        try:
+            self.cursor.execute(query)
+            self.conn.commit()
+        except Exception as e:
+            print(f'Помилка при створенні таблиці: {e}')
 
     def insert_data(self, table_name: str, columns: str, data: str):
         """
@@ -29,11 +32,16 @@ class Database:
         """
 
         query = f"INSERT INTO {table_name} ({columns}) VALUES ({data})"
-        self.cursor.execute(query)
-        self.conn.commit()
+        try:
+            self.cursor.execute(query)
+            self.conn.commit()
+        except Exception as e:
+            print(f'Помилка при вставці даних: {e}')
 
     def select_data(self, table_name: str, columns: str = None, condition=None):
         """
+        Цей метод повертає список кортежів, де кожен кортеж це рядок з таблиці
+
         :param table_name: назва таблиці
         :param columns: назви стовпців приблизно такого формату: 'name, desc, salary'
         :param condition: умова вибору даних приблизно такого формату: 'salary > 1000'
@@ -44,8 +52,11 @@ class Database:
         query = f"SELECT {columns} FROM {table_name}"
         if condition is not None:
             query += f" WHERE {condition}"
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
+        try:
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+        except Exception as e:
+            print(f'Помилка при виборці даних: {e}')
 
     def update_data(self, table_name, set_values, condition=None):
         """
@@ -57,8 +68,11 @@ class Database:
         query = f"UPDATE {table_name} SET {set_values}"
         if condition is not None:
             query += f" WHERE {condition}"
-        self.cursor.execute(query)
-        self.conn.commit()
+        try:
+            self.cursor.execute(query)
+            self.conn.commit()
+        except Exception as e:
+            print(f'Помилка при оновленні даних: {e}')
 
     def delete_data(self, table_name, condition=None):
         """
@@ -69,14 +83,15 @@ class Database:
         query = f"DELETE FROM {table_name}"
         if condition is not None:
             query += f" WHERE {condition}"
-        self.cursor.execute(query)
-        self.conn.commit()
+        try:
+            self.cursor.execute(query)
+            self.conn.commit()
+        except Exception as e:
+            print(f'Помилка при видаленні даних: {e}')
 
     def close_connection(self):
         self.conn.close()
 
-
-# db_obj = Database('example.db')
 
 
 def sql_start():
