@@ -63,7 +63,7 @@ class Database:
             print(f'Помилка при виборці даних: {e}')
             await message.answer(f'Помилка при виборці даних: {e}', reply_markup=client_kb)
 
-    async def update_data(self, message: types.Message, table_name, set_values, condition=None):
+    async def update_data(self, message: types.Message, table_name: str, set_values: str, condition: str=None):
         """
         :param table_name: назва таблиці
         :param set_values: данні які треба вставити приблизно такого формату: 'name = "Вакансія 1", desc = "Опис вакансії 1", salary = 1000'
