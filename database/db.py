@@ -1,7 +1,10 @@
 import sqlite3 as sq
 from create_bot import bot
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+
+from keyboards import client_kb
 
 
 class Database:
@@ -24,7 +27,7 @@ class Database:
         except Exception as e:
             print(f'Помилка при створенні таблиці: {e}')
 
-    def insert_data(self, table_name: str, columns: str, data: str):
+    async def insert_data(self, message: types.Message, table_name: str, columns: str, data: str):
         """
         :param table_name: назва таблиці
         :param columns: назви стовпців приблизно такого формату: 'name, desc, salary'
@@ -37,8 +40,9 @@ class Database:
             self.conn.commit()
         except Exception as e:
             print(f'Помилка при вставці даних: {e}')
+            await message.answer(f'Помилка при вставці даних: {e}', reply_markup=client_kb)
 
-    def select_data(self, table_name: str, columns: str = None, condition=None):
+    async def select_data(self, message: types.Message, table_name: str, columns: str = None, condition=None):
         """
         Цей метод повертає список кортежів, де кожен кортеж це рядок з таблиці
 
@@ -57,8 +61,9 @@ class Database:
             return self.cursor.fetchall()
         except Exception as e:
             print(f'Помилка при виборці даних: {e}')
+            await message.answer(f'Помилка при виборці даних: {e}', reply_markup=client_kb)
 
-    def update_data(self, table_name, set_values, condition=None):
+    async def update_data(self, message: types.Message, table_name, set_values, condition=None):
         """
         :param table_name: назва таблиці
         :param set_values: данні які треба вставити приблизно такого формату: 'name = "Вакансія 1", desc = "Опис вакансії 1", salary = 1000'
@@ -73,8 +78,9 @@ class Database:
             self.conn.commit()
         except Exception as e:
             print(f'Помилка при оновленні даних: {e}')
+            await message.answer(f'Помилка при оновленні даних: {e}', reply_markup=client_kb)
 
-    def delete_data(self, table_name, condition=None):
+    async def delete_data(self, message: types.Message, table_name: str, condition: str = None):
         """
         :param table_name: назва таблиці
         :param condition: умова вибору даних приблизно такого формату: 'salary > 1000' або 'id = 1'
@@ -88,10 +94,10 @@ class Database:
             self.conn.commit()
         except Exception as e:
             print(f'Помилка при видаленні даних: {e}')
+            await message.answer(f'Помилка при видаленні даних: {e}', reply_markup=client_kb)
 
     def close_connection(self):
         self.conn.close()
-
 
 
 def sql_start():

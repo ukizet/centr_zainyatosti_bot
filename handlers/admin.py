@@ -22,11 +22,13 @@ class AddVacancy(StatesGroup):
 class DeleteVacancy(StatesGroup):
     name = State()
     id = State()
+    # condition = State()
 
 
 class ChangeVacancy(StatesGroup):
     id = State()
-    name = State()
+    new_name = State()
+    condition = State()
 
 
 def buttons_handlers():
@@ -39,11 +41,13 @@ def buttons_handlers():
     async def button_change(message: types.Message):
         await message.answer('Ще в розробці', reply_markup=client_kb)
         await ChangeVacancy.id.set()
+        # await ChangeVacancy.condition.set()
         await message.answer('Введіть id вакансії яку треба змінити', reply_markup=cancel_button)
 
     async def button_delete(message: types.Message):
         # await message.answer('Ще в розробці', reply_markup=client_kb)
         await DeleteVacancy.id.set()
+        # await DeleteVacancy.condition.set()
         await message.answer('Введіть id вакансії яку треба видалити', reply_markup=cancel_button)
         pass
 
@@ -79,8 +83,8 @@ def addVacancy_states_handlers():
 
             await db.sql_add(state=state)
             async with state.proxy() as data:
-                db.db_obj.insert_data('vacancies', 
-                                   'name, desc, salary', f"'{data['name']}', '{data['desc']}', '{data['salary']}'")
+                await db.db_obj.insert_data(message, 'vacancies',
+                                            'name, desc, salary', f"'{data['name']}', '{data['desc']}', '{data['salary']}'")
             await state.finish()
         else:
             await AddVacancy.next()
@@ -100,7 +104,13 @@ def addVacancy_states_handlers():
 
 
 async def del_vacancy(message: types.Message, state: FSMContext):
+    try:
+        id = int(message.text)
+    except:
+        await message.answer('Було введено не число. Введіть число')
+        return
     await db.sql_delete(message=message)
+    await db.db_obj.delete_data(message, 'vacancies', f'id={id}')
     await state.finish()
     await message.answer('Вакансія була видалена', reply_markup=client_kb)
     pass
@@ -109,7 +119,7 @@ async def del_vacancy(message: types.Message, state: FSMContext):
 async def changeVacancy_get_id(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['id'] = int(message.text)
-    await ChangeVacancy.name.set()
+    await ChangeVacancy.new_name.set()
     await message.answer('Введіть нову назву вакансії', reply_markup=cancel_button)
 
 
@@ -119,6 +129,11 @@ async def changeVacancy_get_name(message: types.Message, state: FSMContext):
     await db.sql_change(message=message, state=state)
     await state.finish()
     await message.answer('Вакансія була змінена', reply_markup=client_kb)
+
+# async def changeVacancy_get_condition(message: types.Message, state: FSMContext):
+#     async with state.proxy() as data:
+#         data['condition'] = message.text
+#     await message.answer('Вакансія була змінена', reply_markup=client_kb)
 
 buttons_handlers()
 addVacancy_states_handlers()
@@ -144,10 +159,12 @@ def reg_handlers_admin(dp: Dispatcher):
         dp.register_message_handler(load_salary, state=AddVacancy.salary)
 
     dp.register_message_handler(del_vacancy, state=DeleteVacancy.id)
+    # dp.register_message_handler(del_vacancy, state=DeleteVacancy.condition)
 
     dp.register_message_handler(changeVacancy_get_id, state=ChangeVacancy.id)
     dp.register_message_handler(
-        changeVacancy_get_name, state=ChangeVacancy.name)
+        changeVacancy_get_name, state=ChangeVacancy.new_name)
+    # dp.register_message_handler(changeVacancy_get_condition, state=ChangeVacancy.condition)
 
     reg_buttons()
     reg_addVacancy_handlers()
