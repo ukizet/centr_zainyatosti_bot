@@ -42,7 +42,7 @@ class Database:
             print(f'Помилка при вставці даних: {e}')
             await message.answer(f'Помилка при вставці даних: {e}', reply_markup=client_kb)
 
-    async def select_data(self, message: types.Message, table_name: str, columns: str = None, condition=None):
+    async def select_data(self, message: types.Message, table_name: str, columns: str = None, condition: str=None):
         """
         Цей метод повертає список кортежів, де кожен кортеж це рядок з таблиці
 
@@ -166,3 +166,5 @@ async def sql_change(message: types.Message, state: FSMContext):
             await message.answer('Запис успішно оновлено')
         except Exception as e:
             await message.answer(f'Помилка при оновленні запису: {e}')
+
+
