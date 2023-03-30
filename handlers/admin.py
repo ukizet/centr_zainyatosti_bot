@@ -28,10 +28,10 @@ class DeleteVacancy(StatesGroup):
 class ChangeVacancy(StatesGroup):
     id = State()
     choice = State()
-    new_name = State()
-    new_status = State()
-    new_desc = State()
-    new_salary = State()
+    name = State()
+    status = State()
+    desc = State()
+    salary = State()
     condition = State()
 
 
@@ -39,32 +39,30 @@ class SearchVacancy(StatesGroup):
     name = State()
 
 
-def buttons_handlers(function_name: str = None):
-    # global button_add, button_cancel, button_delete, button_change, button_show, button_search
-
-    async def button_add(message: types.Message):
+class Buttons_handlers():
+    async def button_add(self, message: types.Message):
         await AddVacancy.name.set()
         await message.answer('Пишіть назву вакансії', reply_markup=cancel_button)
 
-    async def button_change(message: types.Message):
+    async def button_change(self, message: types.Message):
         await message.answer('Ще в розробці', reply_markup=client_kb)
         await ChangeVacancy.id.set()
         # await ChangeVacancy.condition.set()
         await message.answer('Введіть id вакансії яку треба змінити', reply_markup=cancel_button)
 
-    async def button_delete(message: types.Message):
+    async def button_delete(self, message: types.Message):
         # await message.answer('Ще в розробці', reply_markup=client_kb)
         await DeleteVacancy.id.set()
         # await DeleteVacancy.condition.set()
         await message.answer('Введіть id вакансії яку треба видалити', reply_markup=cancel_button)
         pass
 
-    async def button_show(message: types.Message):
+    async def button_show(self, message: types.Message):
         # await db.sql_read_admin(message=message)
         for vacancy in await db.db_obj.select_data(message, 'vacancies', '*'):
             await message.answer(f'ID: {vacancy[0]}\nСтатус: {vacancy[1]}\nНазва вакансії: {vacancy[2]}\nОпис: {vacancy[3]}\nЗП: {vacancy[4]}')
 
-    async def button_cancel(message: types.Message, state: FSMContext):
+    async def button_cancel(self, message: types.Message, state: FSMContext):
         current_state = await state.get_state()
         print(f'current_state: {current_state}')
         if current_state is None:
@@ -73,31 +71,16 @@ def buttons_handlers(function_name: str = None):
         await state.finish()
         await message.answer('Операція була скасована', reply_markup=client_kb)
 
-    async def button_search(message: types.Message):
+    async def button_search(self, message: types.Message):
         await message.answer('Ще в розробці', reply_markup=client_kb)
         await SearchVacancy.name.set()
         await message.answer('Введіть назву вакансії яку треба знайти', reply_markup=cancel_button)
 
-    if function_name is not None:
-        result = eval(function_name)
-        return result
-    else:
-        pass
 
-
-def addVacancy_states_handlers(function_name: str = None):
-    # global load_template, load_name, load_desc, load_salary
-
-    async def load_template(message: types.Message, state: FSMContext, load_type: str, text: str = '', finish: bool = False, test: bool = False):
-        def getmsg():
-            if test:
-                if load_type == 'salary':
-                    return random.randint(10000, 99999)
-                return ''.join(random.choice(letters) for i in range(5))
-            return message.text
-
+class AddVacancy_states_handlers():
+    async def load_template(self, message: types.Message, state: FSMContext, load_type: str, text: str = '', finish: bool = False, test: bool = False):
         async with state.proxy() as data:
-            data[f'{load_type}'] = getmsg()
+            data[f'{load_type}'] = message.text
         if finish == True:
             async with state.proxy() as data:
                 await message.answer(str(data), reply_markup=client_kb)
@@ -114,20 +97,14 @@ def addVacancy_states_handlers(function_name: str = None):
             else:
                 pass
 
-    async def load_name(message: types.Message, state: FSMContext):
-        await load_template(message=message, state=state, load_type='name', text='Пишіть опис вакансії')
+    async def load_name(self, message: types.Message, state: FSMContext):
+        await self.load_template(message=message, state=state, load_type='name', text='Пишіть опис вакансії')
 
-    async def load_desc(message: types.Message, state: FSMContext):
-        await load_template(message=message, state=state, load_type='desc', text='Пишіть ЗП')
+    async def load_desc(self, message: types.Message, state: FSMContext):
+        await self.load_template(message=message, state=state, load_type='desc', text='Пишіть ЗП')
 
-    async def load_salary(message: types.Message, state: FSMContext):
-        await load_template(message=message, state=state, load_type='salary', text='', finish=True)
-
-    if function_name is not None:
-        result = eval(function_name)
-        return result
-    else:
-        pass
+    async def load_salary(self, message: types.Message, state: FSMContext):
+        await self.load_template(message=message, state=state, load_type='salary', text='', finish=True)
 
 
 async def del_vacancy(message: types.Message, state: FSMContext):
@@ -143,10 +120,8 @@ async def del_vacancy(message: types.Message, state: FSMContext):
     pass
 
 
-def changeVacancy_states_handlers(function_name: str = None) -> callable:
-    # global handle_id, handle_choice, handle_new_name, handle_new_status, handle_new_desc, handle_new_salary, changeVacancy_handle_condition, handle_name
-
-    async def handle_id(message: types.Message, state: FSMContext):
+class ChangeVacancy_states_handlers():
+    async def id(self, message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['id'] = int(message.text)
         # await ChangeVacancy.new_name.set()
@@ -155,7 +130,7 @@ def changeVacancy_states_handlers(function_name: str = None) -> callable:
         await message.answer('''Введіть\n1 - якщо хочете змінити статус вакансії,\n2 - якщо хочете змінити назву вакансії\n3 - якщо хочете змінити опис вакансії,\n4 - якщо хочете змінити ЗП\n5 - якщо хочете змінити все''',
                              reply_markup=cancel_button)
 
-    async def handle_choice(message: types.Message, state: FSMContext):
+    async def choice(self, message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             try:
                 data['choice'] = int(message.text)
@@ -163,29 +138,29 @@ def changeVacancy_states_handlers(function_name: str = None) -> callable:
                 await message.answer('Було введено не число. Введіть число')
                 return
         if data['choice'] == 1:
-            await ChangeVacancy.new_status.set()
+            await ChangeVacancy.status.set()
             await message.answer('Введіть новий статус вакансії', reply_markup=cancel_button)
         elif data['choice'] == 2:
-            await ChangeVacancy.new_name.set()
+            await ChangeVacancy.name.set()
             await message.answer('Введіть нову назву вакансії', reply_markup=cancel_button)
         elif data['choice'] == 3:
-            await ChangeVacancy.new_desc.set()
+            await ChangeVacancy.desc.set()
             await message.answer('Введіть новий опис вакансії', reply_markup=cancel_button)
         elif data['choice'] == 4:
-            await ChangeVacancy.new_salary.set()
+            await ChangeVacancy.salary.set()
             await message.answer('Введіть нову ЗП', reply_markup=cancel_button)
         elif data['choice'] == 5:
-            await ChangeVacancy.new_status.set()
+            await ChangeVacancy.status.set()
             await message.answer('Введіть новий статус вакансії', reply_markup=cancel_button)
         else:
             await message.answer('Введено не коректне число', reply_markup=client_kb)
             await state.finish()
 
-    async def handle_new_status(message: types.Message, state: FSMContext):
+    async def status(self, message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['status'] = message.text
         if data['choice'] == 5:
-            await ChangeVacancy.new_name.set()
+            await ChangeVacancy.name.set()
             await message.answer('Введіть нову назву вакансії', reply_markup=cancel_button)
         else:
             # await db.sql_change(message=message, state=state)
@@ -193,29 +168,29 @@ def changeVacancy_states_handlers(function_name: str = None) -> callable:
             await state.finish()
             await message.answer('Вакансія була змінена', reply_markup=client_kb)
 
-    async def handle_new_name(message: types.Message, state: FSMContext):
+    async def name(self, message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['name'] = message.text
         if data['choice'] == 5:
-            await ChangeVacancy.new_desc.set()
+            await ChangeVacancy.desc.set()
             await message.answer('Введіть новий опис вакансії', reply_markup=cancel_button)
         else:
             await db.db_obj.update_data(message, 'vacancies', f"name='{data['name']}'", f"id={data['id']}")
             await state.finish()
             await message.answer('Вакансія була змінена', reply_markup=client_kb)
 
-    async def handle_new_desc(message: types.Message, state: FSMContext):
+    async def desc(self, message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['desc'] = message.text
         if data['choice'] == 5:
-            await ChangeVacancy.new_salary.set()
+            await ChangeVacancy.salary.set()
             await message.answer('Введіть нову ЗП', reply_markup=cancel_button)
         else:
             await db.db_obj.update_data(message, 'vacancies', f"desc='{data['desc']}'", f"id={data['id']}")
             await state.finish()
             await message.answer('Вакансія була змінена', reply_markup=client_kb)
 
-    async def handle_new_salary(message: types.Message, state: FSMContext):
+    async def salary(self, message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['salary'] = message.text
         if data['choice'] == 5:
@@ -226,12 +201,6 @@ def changeVacancy_states_handlers(function_name: str = None) -> callable:
             await db.db_obj.update_data(message, 'vacancies', f"salary='{data['salary']}'", f"id={data['id']}")
             await state.finish()
             await message.answer('Вакансія була змінена', reply_markup=client_kb)
-
-    if function_name is not None:
-        result = eval(function_name)
-        return result
-    else:
-        pass
 
 
 async def searchVacancy_handle_name(message: types.Message, state: FSMContext):
@@ -245,54 +214,51 @@ async def searchVacancy_handle_name(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-# addVacancy_states_handlers()
-# changeVacancy_states_handlers()
-
-
 def reg_handlers_admin(dp: Dispatcher):
     def reg_buttons():
+        buttons_handlers_obj = Buttons_handlers()
         dp.register_message_handler(
-            buttons_handlers('button_cancel'), Text(equals='Відміна'), state="*")
+            buttons_handlers_obj.button_cancel, Text(equals='Відміна'), state="*")
 
-        dp.register_message_handler(buttons_handlers('button_add'), Text(
+        dp.register_message_handler(buttons_handlers_obj.button_add, Text(
             equals='Додати вакансію'), state=None)
         dp.register_message_handler(
-            buttons_handlers('button_change'), Text(equals='Змінити вакансію'))
+            buttons_handlers_obj.button_change, Text(equals='Змінити вакансію'))
         dp.register_message_handler(
-            buttons_handlers('button_delete'), Text(equals='Видалити вакансію'))
+            buttons_handlers_obj.button_delete, Text(equals='Видалити вакансію'))
         dp.register_message_handler(
-            buttons_handlers('button_show'), Text(equals='Показати вакансії'))
-        dp.register_message_handler(buttons_handlers(
-            'button_search'), Text(equals='Пошук вакансій'))
-
+            buttons_handlers_obj.button_show, Text(equals='Показати вакансії'))
+        dp.register_message_handler(
+            buttons_handlers_obj.button_search, Text(equals='Пошук вакансій'))
     reg_buttons()
 
     def reg_addVacancy_handlers():
-        dp.register_message_handler(addVacancy_states_handlers(
-            'load_name'), state=AddVacancy.name)
-        dp.register_message_handler(addVacancy_states_handlers(
-            'load_desc'), state=AddVacancy.desc)
-        dp.register_message_handler(addVacancy_states_handlers(
-            'load_salary'), state=AddVacancy.salary)
-
+        addVacancy_states_handlers_obj = AddVacancy_states_handlers()
+        dp.register_message_handler(
+            addVacancy_states_handlers_obj.load_name, state=AddVacancy.name)
+        dp.register_message_handler(
+            addVacancy_states_handlers_obj.load_desc, state=AddVacancy.desc)
+        dp.register_message_handler(
+            addVacancy_states_handlers_obj.load_salary, state=AddVacancy.salary)
     reg_addVacancy_handlers()
 
     dp.register_message_handler(del_vacancy, state=DeleteVacancy.id)
     # dp.register_message_handler(del_vacancy, state=DeleteVacancy.condition)
 
     def reg_changeVacancy_handlers():
-        dp.register_message_handler(changeVacancy_states_handlers(
-            'handle_id'), state=ChangeVacancy.id)
-        dp.register_message_handler(changeVacancy_states_handlers(
-            'handle_choice'), state=ChangeVacancy.choice)
-        dp.register_message_handler(changeVacancy_states_handlers(
-            'handle_new_status'), state=ChangeVacancy.new_status)
-        dp.register_message_handler(changeVacancy_states_handlers(
-            'handle_new_name'), state=ChangeVacancy.new_name)
-        dp.register_message_handler(changeVacancy_states_handlers(
-            'handle_new_desc'), state=ChangeVacancy.new_desc)
-        dp.register_message_handler(changeVacancy_states_handlers(
-            'handle_new_salary'), state=ChangeVacancy.new_salary)
+        changeVacancy_states_handlers_obj = ChangeVacancy_states_handlers()
+        dp.register_message_handler(
+            changeVacancy_states_handlers_obj.id, state=ChangeVacancy.id)
+        dp.register_message_handler(
+            changeVacancy_states_handlers_obj.choice, state=ChangeVacancy.choice)
+        dp.register_message_handler(
+            changeVacancy_states_handlers_obj.status, state=ChangeVacancy.status)
+        dp.register_message_handler(
+            changeVacancy_states_handlers_obj.name, state=ChangeVacancy.name)
+        dp.register_message_handler(
+            changeVacancy_states_handlers_obj.desc, state=ChangeVacancy.desc)
+        dp.register_message_handler(
+            changeVacancy_states_handlers_obj.salary, state=ChangeVacancy.salary)
     reg_changeVacancy_handlers()
 
     dp.register_message_handler(

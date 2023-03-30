@@ -22,14 +22,13 @@ class Buttons_handlers():
             await message.answer(f'Назва вакансії: {vacancy[2]}\nОпис: {vacancy[3]}\nЗП: {vacancy[4]}')
 
 
-buttons_handlers_obj = Buttons_handlers()
-
-
 async def command_start(message: types.Message):
     await message.answer('Виберіть потрібний розділ нижче👇', reply_markup=client_kb)
 
 
 def reg_handlers_client(dp: Dispatcher):
+    buttons_handlers_obj = Buttons_handlers()
+
     def reg_buttons():
         dp.register_message_handler(
             buttons_handlers_obj.admin_panel, Text(equals='Панель адміна'))
