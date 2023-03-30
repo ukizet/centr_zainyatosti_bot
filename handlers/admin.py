@@ -84,8 +84,7 @@ class AddVacancy_states_handlers():
         if finish == True:
             async with state.proxy() as data:
                 await message.answer(str(data), reply_markup=client_kb)
-
-            await db.sql_add(state=state)
+            # await db.sql_add(state=state)
             async with state.proxy() as data:
                 await db.db_obj.insert_data(message, 'vacancies',
                                             'name, desc, salary', f"'{data['name']}', '{data['desc']}', '{data['salary']}'")
@@ -113,7 +112,7 @@ async def del_vacancy(message: types.Message, state: FSMContext):
     except:
         await message.answer('Було введено не число. Введіть число')
         return
-    await db.sql_delete(message=message)
+    # await db.sql_delete(message=message)
     await db.db_obj.delete_data(message, 'vacancies', f'id={id}')
     await state.finish()
     await message.answer('Вакансія була видалена', reply_markup=client_kb)

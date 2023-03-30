@@ -27,16 +27,14 @@ async def command_start(message: types.Message):
 
 
 def reg_handlers_client(dp: Dispatcher):
-    buttons_handlers_obj = Buttons_handlers()
-
     def reg_buttons():
+        buttons_handlers_obj = Buttons_handlers()
         dp.register_message_handler(
             buttons_handlers_obj.admin_panel, Text(equals='Панель адміна'))
         dp.register_message_handler(
             buttons_handlers_obj.command_schedule, Text(equals='Графік роботи'))
         dp.register_message_handler(
             buttons_handlers_obj.command_menu, Text(equals='Меню'))
-
     reg_buttons()
 
     dp.register_message_handler(command_start)
