@@ -16,15 +16,8 @@ class Buttons_handlers():
         await message.answer('з 08:00 до 17:00')
 
     async def command_menu(self, message: types.Message):
-        # await db.sql_read(message=message)
-        # await message.answer('Ще в розробці', reply_markup=client_kb)
-        vacancy_dict = {}
         for i, vacancy in enumerate(await db.db_obj.select_data(message, 'vacancies', '*'), start=1):
             await message.answer(f'Назва вакансії: {vacancy[2]}\nОпис: {vacancy[3]}\nЗП: {vacancy[4]}')
-            vacancy_dict[f'vacancy{i}'] = vacancy
-            # print(vacancy_dict)
-        inline_kb = get_inline_kb(vacancy_dict['vacancy1'], vacancy_dict['vacancy2'], vacancy_dict['vacancy3'], vacancy_dict['vacancy4'], vacancy_dict['vacancy5'])
-        await message.answer('inline', reply_markup=inline_kb, parse_mode='HTML')
 
 
 async def command_start(message: types.Message):
