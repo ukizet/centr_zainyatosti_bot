@@ -104,6 +104,7 @@ class Database:
 
 
 def sql_start():
+    print('db.py started')
     global db_obj
     # conn = sq.connect('database/vacancies.db')
     # cur = conn.cursor()
