@@ -6,13 +6,18 @@ from aiogram.dispatcher import FSMContext
 
 from keyboards import client_kb
 
+import os
+
 
 class Database:
     def __init__(self, db_name: str):
         """
         :db_name: назва бази даних з крапкою, як тут 'database.db'
         """
-        self.conn = sq.connect(f'database/{db_name}')
+        self.current_dir = os.getcwd()
+        # перевірка в якій директорії запущений бот
+        if self.current_dir.endswith('centr_zainyatosti_bot'): self.conn = sq.connect(f'database/{db_name}')
+        else: self.conn = sq.connect(f'centr_zainyatosti_bot/database/{db_name}')
         self.cursor = self.conn.cursor()
         if self.conn:
             print('Database connected(class Database)')
