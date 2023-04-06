@@ -8,7 +8,7 @@ from database import db
 
 class ButtonsHandlers():
     def __init__(self):
-        self.command_menu = Command_menu_handlers()
+        self.command_menu = CommandMenuHandlers()
 
     async def admin_panel(self, message: types.Message):
         await message.answer(reply_markup=admin_kb, text='admin panel')
