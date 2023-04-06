@@ -9,6 +9,8 @@ from keyboards import client_kb, cancel_button
 import random
 import string
 
+import inspect
+
 from dataclasses import dataclass
 
 # Створити список всіх латинських букв
@@ -276,7 +278,7 @@ class RegHandlers:
     def reg_all(self):
         methods = [method for method in dir(self.__class__.__name__) if callable(getattr(self.__class__.__name__, method)) and not method.startswith("__")]
         for method in methods:
-            if method != "reg_all":
+            if method != inspect.currentframe().f_code.co_name:
                 getattr(self, method)()
 
     def reg_buttons(self):
@@ -294,4 +296,34 @@ class RegHandlers:
             buttons_handlers_obj.button_show, Text(equals='Показати вакансії'))
         self.dp.register_message_handler(
             buttons_handlers_obj.button_search, Text(equals='Пошук вакансій'))
-    pass
+
+    def add_handlers(self):
+        addVacancy_states_handlers_obj = AddVacancyStatesHandlers()
+        self.dp.register_message_handler(
+            addVacancy_states_handlers_obj.load_name, state=AddVacancy.name)
+        self.dp.register_message_handler(
+            addVacancy_states_handlers_obj.load_desc, state=AddVacancy.desc)
+        self.dp.register_message_handler(
+            addVacancy_states_handlers_obj.load_salary, state=AddVacancy.salary)
+        
+    def delete_handler(self):
+        self.dp.register_message_handler(del_vacancy, state=DeleteVacancy.id)
+
+    def reg_changeVacancy_handlers(self):
+        change_obj = ChangeVacancyStatesHandlers()
+        self.dp.register_message_handler(
+            change_obj.id, state=ChangeVacancy.id)
+        self.dp.register_message_handler(
+            change_obj.choice, state=ChangeVacancy.choice)
+        self.dp.register_message_handler(
+            change_obj.status, state=ChangeVacancy.status)
+        self.dp.register_message_handler(
+            change_obj.name, state=ChangeVacancy.name)
+        self.dp.register_message_handler(
+            change_obj.desc, state=ChangeVacancy.desc)
+        self.dp.register_message_handler(
+            change_obj.salary, state=ChangeVacancy.salary)
+        
+    def search(self):
+        self.dp.register_message_handler(
+        searchVacancy_handle_name, state=SearchVacancy.name)
