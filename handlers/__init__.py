@@ -1,3 +1,3 @@
 from .client import client
-from . import admin
+from .admin import admin
 from . import other

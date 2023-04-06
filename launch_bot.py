@@ -11,9 +11,9 @@ async def on_startup(_):
 
 
 def main():
-    admin.reg_handlers_admin(dp)
-    # other.reg_handlers_other(dp)
-    client.reg_handlers_client(dp)
+    admin.reg_handlers(dp)
+    other.reg_handlers(dp)
+    client.reg_handlers(dp)
 
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
 

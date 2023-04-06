@@ -9,6 +9,8 @@ from keyboards import client_kb, cancel_button
 import random
 import string
 
+from dataclasses import dataclass
+
 # Створити список всіх латинських букв
 letters = string.ascii_lowercase
 
@@ -262,3 +264,34 @@ def reg_handlers(dp: Dispatcher):
 
     dp.register_message_handler(
         searchVacancy_handle_name, state=SearchVacancy.name)
+
+@dataclass
+class RegHandlers:
+    dp: Dispatcher
+    buttons_handlers_obj: ButtonsHandlers
+
+    def __init__(self, dp: Dispatcher):
+        self.dp = dp
+
+    def reg_all(self):
+        methods = [method for method in dir(self.__class__.__name__) if callable(getattr(self.__class__.__name__, method)) and not method.startswith("__")]
+        for method in methods:
+            if method != "reg_all":
+                getattr(self, method)()
+
+    def reg_buttons(self):
+        buttons_handlers_obj = ButtonsHandlers()
+        self.dp.register_message_handler(
+            buttons_handlers_obj.button_cancel, Text(equals='Відміна'), state="*")
+
+        self.dp.register_message_handler(buttons_handlers_obj.button_add, Text(
+            equals='Додати вакансію'), state=None)
+        self.dp.register_message_handler(
+            buttons_handlers_obj.button_change, Text(equals='Змінити вакансію'))
+        self.dp.register_message_handler(
+            buttons_handlers_obj.button_delete, Text(equals='Видалити вакансію'))
+        self.dp.register_message_handler(
+            buttons_handlers_obj.button_show, Text(equals='Показати вакансії'))
+        self.dp.register_message_handler(
+            buttons_handlers_obj.button_search, Text(equals='Пошук вакансій'))
+    pass

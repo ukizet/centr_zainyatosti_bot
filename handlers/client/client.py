@@ -70,7 +70,7 @@ async def command_start(message: types.Message):
     await message.answer('Виберіть потрібний розділ нижче👇', reply_markup=client_kb)
 
 
-def reg_handlers_client(dp: Dispatcher):
+def reg_handlers(dp: Dispatcher):
     def reg_buttons():
         buttons_handlers_obj = Buttons_handlers()
         dp.register_message_handler(
