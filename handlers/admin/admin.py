@@ -39,7 +39,7 @@ class SearchVacancy(StatesGroup):
     name = State()
 
 
-class Buttons_handlers():
+class ButtonsHandlers:
     async def button_add(self, message: types.Message):
         await AddVacancy.name.set()
         await message.answer('Пишіть назву вакансії', reply_markup=cancel_button)
@@ -77,7 +77,7 @@ class Buttons_handlers():
         await message.answer('Введіть назву вакансії яку треба знайти', reply_markup=cancel_button)
 
 
-class AddVacancy_states_handlers():
+class AddVacancyStatesHandlers():
     async def load_template(self, message: types.Message, state: FSMContext, load_type: str, text: str = '', finish: bool = False, test: bool = False):
         async with state.proxy() as data:
             data[f'{load_type}'] = message.text
@@ -119,7 +119,7 @@ async def del_vacancy(message: types.Message, state: FSMContext):
     pass
 
 
-class ChangeVacancy_states_handlers():
+class ChangeVacancyStatesHandlers():
     async def id(self, message: types.Message, state: FSMContext):
         async with state.proxy() as data:
             data['id'] = int(message.text)
@@ -215,7 +215,7 @@ async def searchVacancy_handle_name(message: types.Message, state: FSMContext):
 
 def reg_handlers_admin(dp: Dispatcher):
     def reg_buttons():
-        buttons_handlers_obj = Buttons_handlers()
+        buttons_handlers_obj = ButtonsHandlers()
         dp.register_message_handler(
             buttons_handlers_obj.button_cancel, Text(equals='Відміна'), state="*")
 
@@ -232,7 +232,7 @@ def reg_handlers_admin(dp: Dispatcher):
     reg_buttons()
 
     def reg_addVacancy_handlers():
-        addVacancy_states_handlers_obj = AddVacancy_states_handlers()
+        addVacancy_states_handlers_obj = AddVacancyStatesHandlers()
         dp.register_message_handler(
             addVacancy_states_handlers_obj.load_name, state=AddVacancy.name)
         dp.register_message_handler(
@@ -245,7 +245,7 @@ def reg_handlers_admin(dp: Dispatcher):
     # dp.register_message_handler(del_vacancy, state=DeleteVacancy.condition)
 
     def reg_changeVacancy_handlers():
-        changeVacancy_states_handlers_obj = ChangeVacancy_states_handlers()
+        changeVacancy_states_handlers_obj = ChangeVacancyStatesHandlers()
         dp.register_message_handler(
             changeVacancy_states_handlers_obj.id, state=ChangeVacancy.id)
         dp.register_message_handler(

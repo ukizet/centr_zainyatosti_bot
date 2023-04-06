@@ -1,25 +1,20 @@
-from aiogram import types, Dispatcher
+from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.dispatcher.filters import Text
 
-from create_bot import dp
-from keyboards import client_kb, admin_kb, get_inline_kb
+from dataclasses import dataclass
+
 from database import db
 
-class ButtonsHandlers():
-    def __init__(self):
-        self.command_menu = CommandMenuHandlers()
-
-    async def admin_panel(self, message: types.Message):
-        await message.answer(reply_markup=admin_kb, text='admin panel')
-        pass
-
-    async def command_schedule(self, message: types.Message):
-        await message.answer('з 08:00 до 17:00')
-
+@dataclass
 class CommandMenuHandlers:
+    page: int
+    previous_page: int
+    VACANCIES_PER_PAGE: int
+    inline_kb: InlineKeyboardMarkup
+    all_vacancies: list
+    vacs_list: list
+
     def __init__(self):
-        # self.Buttons_handlers_obj = Buttons_handlers_obj
         self.page = 1
         self.previous_page = 0
         self.VACANCIES_PER_PAGE = 5
