@@ -6,7 +6,7 @@ from create_bot import dp
 from keyboards import client_kb, admin_kb, get_inline_kb
 from database import db
 
-class Buttons_handlers():
+class ButtonsHandlers():
     def __init__(self):
         self.command_menu = Command_menu_handlers()
 
@@ -17,7 +17,7 @@ class Buttons_handlers():
     async def command_schedule(self, message: types.Message):
         await message.answer('з 08:00 до 17:00')
 
-class Command_menu_handlers:
+class CommandMenuHandlers:
     def __init__(self):
         # self.Buttons_handlers_obj = Buttons_handlers_obj
         self.page = 1
